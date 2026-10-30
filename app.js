@@ -10,7 +10,7 @@ const values = defaults.map((player, index) => player.map((fallback, field) => {
   return Number.isFinite(value) ? Math.round(Math.max(bounds[field][0], Math.min(bounds[field][1], value))) : fallback;
 }));
 const format = value => value.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const labels = ['Ранг игрока', 'Общий винрейт', 'Победы на Арене'];
+const labels = ['Ранг игрока', 'Текущий винрейт', 'Победы на Арене'];
 const suffixes = ['', '<small>%</small>', '<small> / 10</small>'];
 const endpoints = [['1-й ранг', '30-й ранг'], ['0%', '100%'], ['0 побед', '10 побед']];
 const players = document.querySelector('#players');
@@ -18,10 +18,10 @@ const players = document.querySelector('#players');
 players.innerHTML = values.map((player, index) => `<article class="player ${index ? 'second' : ''}" aria-labelledby="player-${index}">
   <div class="player-heading"><h3 id="player-${index}">Игрок ${index + 1}</h3><span>0${index + 1} / MASTERS</span></div>
   <div class="score-row"><output class="score" id="score-${index}" aria-label="Итоговый балл игрока ${index + 1}"></output><small>квалификационный<br>балл</small></div>
-  <p class="score-caption">Вклад в балл · шкала от 0 до 100</p>
+  <p class="score-caption">Вклад в балл · максимум 83,75</p>
   <div class="stack" aria-hidden="true"><span class="arena"></span><span class="experience"></span><span class="career"></span></div>
   <div class="breakdown"><span>Арена <b></b></span><span>Ранг <b></b></span><span>Винрейт <b></b></span></div>
-  ${player.map((value, field) => `<div class="metric"><div class="metric-head"><label for="${keys[field]}-${index}">${labels[field]}</label><output class="metric-value" for="${keys[field]}-${index}" id="value-${index}-${field}"></output></div><input type="range" id="${keys[field]}-${index}" min="${bounds[field][0]}" max="${bounds[field][1]}" step="1" value="${value}" data-player="${index}" data-field="${field}"><div class="range-ends"><span>${endpoints[field][0]}</span><span>${endpoints[field][1]}</span></div></div>`).join('')}
+  ${player.map((value, field) => `<div class="metric"><div class="metric-head"><label for="${keys[field]}-${index}">${labels[field]}</label><output class="metric-value" for="${keys[field]}-${index}" id="value-${index}-${field}"></output></div><input type="range" id="${keys[field]}-${index}" min="${bounds[field][0]}" max="${bounds[field][1]}" step="1" value="${value}" data-player="${index}" data-field="${field}"><div class="range-ends"><span>${endpoints[field][0]}</span><span>${endpoints[field][1]}</span></div>${field === 1 ? '<p class="metric-note">За последние 50 боёв, как в профиле игрока.</p>' : ''}</div>`).join('')}
 </article>`).join('');
 
 function render() {
@@ -34,7 +34,7 @@ function render() {
       document.querySelector(`#${keys[field]}-${index}`).value = value;
     });
     ['arena', 'experience', 'career'].forEach((key, part) => {
-      card.querySelector(`.stack .${key}`).style.width = `${scores[index][key]}%`;
+      card.querySelector(`.stack .${key}`).style.width = `${scores[index][key] / 83.75 * 100}%`;
       card.querySelectorAll('.breakdown b')[part].textContent = format(scores[index][key]);
     });
   });
@@ -42,7 +42,7 @@ function render() {
   const tied = Math.abs(delta) < 1e-9;
   document.querySelector('#difference').textContent = `${tied ? '' : '+'}${format(Math.abs(delta))}`;
   document.querySelector('#difference').style.color = tied ? 'var(--text)' : delta > 0 ? 'var(--cyan)' : 'var(--gold)';
-  document.querySelector('#comparison-note').textContent = tied ? 'Баллы равны. Критерии при равенстве ещё предстоит определить.' : `У игрока ${delta > 0 ? 1 : 2} балл выше. Проход зависит от квот и других кандидатов.`;
+  document.querySelector('#comparison-note').textContent = tied ? 'Баллы игроков равны.' : `У игрока ${delta > 0 ? 1 : 2} балл выше.`;
 }
 
 players.addEventListener('input', event => {
