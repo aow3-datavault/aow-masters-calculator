@@ -1,5 +1,5 @@
 import { calculateScore } from './score.js';
-import { messages, englishContent } from './i18n.js';
+import { messages, englishContent } from './i18n.js?v=5';
 
 const defaults = [[20, 60, 7], [30, 50, 5]];
 const bounds = [[1, 30], [0, 100], [0, 10]];
