@@ -25,7 +25,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - run: |
           mkdir _site
-          cp index.html styles.css app.js score.js _site/
+          cp index.html styles.css app.js score.js i18n.js _site/
           cp -r assets _site/
       - uses: actions/upload-pages-artifact@v3
         with:

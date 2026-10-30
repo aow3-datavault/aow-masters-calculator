@@ -7,3 +7,5 @@
 .league-name{display:flex;align-items:center;gap:10px;min-width:0}.league-name img{width:44px;height:44px;flex:0 0 44px;object-fit:contain}.quotas div{gap:8px;padding:13px 12px}
 @media(max-width:420px){.quotas{grid-template-columns:1fr}.quotas div{padding:10px 14px}}
 @media(min-width:421px) and (max-width:900px){.qualification{grid-template-columns:1fr;gap:22px}}
+
+.language-toggle{display:flex;gap:4px;flex-shrink:0}.language-toggle button{min-width:42px;padding:7px 10px;font-size:13px}.language-toggle button[aria-pressed="true"]{color:var(--cyan);border-color:var(--cyan);background:#5fd2db15}

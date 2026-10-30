@@ -1,4 +1,5 @@
 import { calculateScore } from './score.js';
+import { messages, englishContent } from './i18n.js';
 
 const defaults = [[20, 60, 7], [30, 50, 5]];
 const bounds = [[1, 30], [0, 100], [0, 10]];
@@ -9,20 +10,29 @@ const values = defaults.map((player, index) => player.map((fallback, field) => {
   const value = raw === null || raw.trim() === '' ? NaN : Number(raw);
   return Number.isFinite(value) ? Math.round(Math.max(bounds[field][0], Math.min(bounds[field][1], value))) : fallback;
 }));
-const format = value => value.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const labels = ['Ранг игрока', 'Текущий винрейт', 'Победы на Арене'];
+let language = 'ru';
+try {
+  language = localStorage.getItem('masters-language') === 'en' ? 'en' : 'ru';
+} catch {
+  console.info('[Masters] Language storage unavailable');
+}
+if (['ru', 'en'].includes(params.get('lang'))) language = params.get('lang');
+let t = messages[language];
+const russianContent = new Map(Object.keys(englishContent).map(selector => [selector, document.querySelector(selector)?.innerHTML]));
+const format = value => value.toLocaleString(language === 'en' ? 'en-US' : 'ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const suffixes = ['', '<small>%</small>', '<small> / 10</small>'];
-const endpoints = [['1-й ранг', '30-й ранг'], ['0%', '100%'], ['0 побед', '10 побед']];
 const players = document.querySelector('#players');
 
+function buildPlayers() {
 players.innerHTML = values.map((player, index) => `<article class="player ${index ? 'second' : ''}" aria-labelledby="player-${index}">
-  <div class="player-heading"><h3 id="player-${index}">Игрок ${index + 1}</h3><span>0${index + 1} / MASTERS</span></div>
-  <div class="score-row"><output class="score" id="score-${index}" aria-label="Итоговый балл игрока ${index + 1}"></output><small>квалификационный<br>балл</small></div>
-  <p class="score-caption">Вклад в балл · максимум 83,75</p>
+  <div class="player-heading"><h3 id="player-${index}">${t.player} ${index + 1}</h3><span>0${index + 1} / MASTERS</span></div>
+  <div class="score-row"><output class="score" id="score-${index}" aria-label="${t.scoreAria} ${index + 1}"></output><small>${t.scoreLabel}</small></div>
+  <p class="score-caption">${t.caption}</p>
   <div class="stack" aria-hidden="true"><span class="arena"></span><span class="experience"></span><span class="career"></span></div>
-  <div class="breakdown"><span>Арена <b></b></span><span>Ранг <b></b></span><span>Винрейт <b></b></span></div>
-  ${player.map((value, field) => `<div class="metric"><div class="metric-head"><label for="${keys[field]}-${index}">${labels[field]}</label><output class="metric-value" for="${keys[field]}-${index}" id="value-${index}-${field}"></output></div><input type="range" id="${keys[field]}-${index}" min="${bounds[field][0]}" max="${bounds[field][1]}" step="1" value="${value}" data-player="${index}" data-field="${field}"><div class="range-ends"><span>${endpoints[field][0]}</span><span>${endpoints[field][1]}</span></div>${field === 1 ? '<p class="metric-note">За последние 50 боёв, как в профиле игрока.</p>' : ''}</div>`).join('')}
+  <div class="breakdown">${t.parts.map(part => `<span>${part} <b></b></span>`).join('')}</div>
+  ${player.map((value, field) => `<div class="metric"><div class="metric-head"><label for="${keys[field]}-${index}">${t.labels[field]}</label><output class="metric-value" for="${keys[field]}-${index}" id="value-${index}-${field}"></output></div><input type="range" id="${keys[field]}-${index}" min="${bounds[field][0]}" max="${bounds[field][1]}" step="1" value="${value}" data-player="${index}" data-field="${field}"><div class="range-ends"><span>${t.endpoints[field][0]}</span><span>${t.endpoints[field][1]}</span></div>${field === 1 ? `<p class="metric-note">${t.winrateNote}</p>` : ''}</div>`).join('')}
 </article>`).join('');
+}
 
 function render() {
   const scores = values.map(player => calculateScore(...player));
@@ -42,7 +52,7 @@ function render() {
   const tied = Math.abs(delta) < 1e-9;
   document.querySelector('#difference').textContent = `${tied ? '' : '+'}${format(Math.abs(delta))}`;
   document.querySelector('#difference').style.color = tied ? 'var(--text)' : delta > 0 ? 'var(--cyan)' : 'var(--gold)';
-  document.querySelector('#comparison-note').textContent = tied ? 'Баллы игроков равны.' : `У игрока ${delta > 0 ? 1 : 2} балл выше.`;
+  document.querySelector('#comparison-note').textContent = tied ? t.tied : t.leader.replace('{player}', delta > 0 ? 1 : 2);
 }
 
 players.addEventListener('input', event => {
@@ -63,18 +73,48 @@ document.querySelector('#share').addEventListener('click', async () => {
   const url = new URL(location.href);
   url.search = '';
   url.hash = '';
+  url.searchParams.set('lang', language);
   values.forEach((player, index) => player.forEach((value, field) => url.searchParams.set(`${keys[field]}${index + 1}`, value)));
   const status = document.querySelector('#share-status');
   try {
     await navigator.clipboard.writeText(url.href);
-    status.textContent = 'Ссылка скопирована';
+    status.textContent = t.copied;
     console.debug('[Masters] Comparison link copied');
   } catch {
     history.replaceState(null, '', url);
-    status.textContent = 'Скопируйте ссылку из адресной строки';
+    status.textContent = t.copyFallback;
     console.info('[Masters] Clipboard unavailable; comparison saved in URL');
   }
 });
 
-render();
+function setLanguage(next, persist = true) {
+  language = next;
+  t = messages[language];
+  document.documentElement.lang = language;
+  document.title = t.title;
+  document.querySelector('meta[name="description"]').content = t.description;
+  document.querySelector('section[aria-label]').setAttribute('aria-label', t.calculatorAria);
+  for (const [selector, english] of Object.entries(englishContent)) {
+    const element = document.querySelector(selector);
+    if (element) element.innerHTML = language === 'en' ? english : russianContent.get(selector);
+  }
+  document.querySelectorAll('[data-language]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
+  document.querySelector('#share-status').textContent = '';
+  buildPlayers();
+  render();
+  if (persist) {
+    try {
+      localStorage.setItem('masters-language', language);
+    } catch {
+      console.info('[Masters] Language preference could not be saved');
+    }
+    const url = new URL(location.href);
+    url.searchParams.set('lang', language);
+    history.replaceState(null, '', url);
+  }
+  console.debug('[Masters] Language selected:', language);
+}
+
+document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => setLanguage(button.dataset.language)));
+setLanguage(language, false);
 console.debug('[Masters] Calculator ready');
