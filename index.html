@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Сравните квалификационные баллы Art of War Masters: ранг, общий винрейт и победы в 10 боях Арены.">
+  <meta name="theme-color" content="#101717">
+  <title>Masters — калькулятор квалификации | Art of War 3</title>
+  <link rel="icon" href="assets/icon.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="https://aow3-datavault.github.io/"><img src="assets/icon.png" width="46" height="46" alt=""><span><strong>ART OF WAR 3</strong><small>COMMUNITY / MASTERS</small></span></a>
+      <a class="back" href="https://aow3-datavault.github.io/">На сайт сообщества <span aria-hidden="true">↗</span></a>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="title">
+        <div class="eyebrow"><span class="signal"></span> ART OF WAR MASTERS <span class="tag">ПРОЕКТ СИСТЕМЫ</span></div>
+        <h1 id="title">Твой результат.<br><span>В общей картине.</span></h1>
+        <p class="lead">Победы на Арене, ранг и опыт — узнай, как они складываются в квалификационный балл. Меняй параметры и сравнивай игроков.</p>
+        <div class="meta"><span><b>10</b> боёв в расчёте</span><span><b>3</b> дня квалификации</span><span>Равная прокачка</span></div>
+      </section>
+      <section aria-label="Калькулятор и сравнение">
+        <div class="section-head"><h2>Сравнение игроков</h2><button id="reset" type="button">Сбросить ↺</button></div>
+        <div class="players" id="players"></div>
+        <div class="comparison" aria-live="polite" aria-atomic="true"><span class="eyebrow">РАЗНИЦА БАЛЛОВ</span><strong id="difference"></strong><p id="comparison-note"></p></div>
+        <div class="share-row"><p>Сохрани сравнение или отправь его другу.</p><button id="share" type="button">Скопировать ссылку ↗</button><span id="share-status" role="status"></span></div>
+      </section>
+      <section class="explanation" aria-labelledby="how-title">
+        <div class="section-head"><h2 id="how-title">Из чего складывается балл</h2><span class="eyebrow">ВЕСА 65 / 25 / 10</span></div>
+        <div class="weights"><article><b class="cyan">65%</b><h3>Результат Арены</h3><p>Главный вклад. Результат сглаживается: короткая серия не считается абсолютным показателем силы.</p></article><article><b class="gold">25%</b><h3>Ранг игрока</h3><p>Чем выше ранг, тем больше баллов за опыт. В расчёте ранг ограничен 30-м.</p></article><article><b class="green">10%</b><h3>Общий винрейт</h3><p>Учитывается вся история побед. Его вклад растёт с рангом: от 5 до 10 баллов при винрейте 100%.</p></article></div>
+        <details><summary>Посмотреть формулу и пример расчёта</summary><div class="formula"><p><strong>S = 65A + 25R + 10W × (0,5 + 0,5R)</strong></p><p>R = (min(ранг, 30) − 1) / 29 · W = общий винрейт / 100</p><p>A = 0,5 + (победы / N − 0,5) × min(N, 20) / (min(N, 20) + 10)</p><p>Здесь N = 10, поэтому A = 0,25 + 0,05 × победы. Каждая дополнительная победа даёт 3,25 балла. При 10 победах, 30-м ранге и винрейте 100% результат — <strong>83,75</strong>. Балл не является процентом вероятности прохода.</p><p>В квалификации учитываются все бои при минимуме 10. Этот калькулятор сравнивает только серии из 10 боёв. Ранг и общий винрейт фиксируются перед стартом квалификации.</p></div></details>
+      </section>
+      <section class="qualification" aria-labelledby="quota-title"><div><span class="eyebrow">ОТБОР НА ТУРНИР</span><h2 id="quota-title">Балл — часть системы</h2><p>32 участника: 24 места по квотам лиг, 6 дополнительных и 2 приглашения. Итоговый баланс — 16 игроков Конфедерации и 16 Сопротивления.</p><p class="muted">Калькулятор не определяет проход: он зависит от лиги, фракции и результатов остальных кандидатов.</p></div><div class="quotas"><div><span>Бронзовая</span><b>2</b></div><div><span>Серебряная</span><b>2</b></div><div><span>Золотая</span><b>2</b></div><div><span>Алмазная</span><b>4</b></div><div><span>Звёздная</span><b>6</b></div><div><span>Легендарная</span><b>8</b></div></div></section>
+      <aside class="notice"><strong>Система ещё проходит проверку.</strong> Веса 65/25/10 зафиксированы. Коэффициенты сглаживания, дополнительные места, перенос незаполненных квот и правила при равенстве баллов предварительные. Расчёты не заменяют итоговый регламент турнира.</aside>
+      <noscript><p class="notice">Для работы калькулятора включите JavaScript в браузере.</p></noscript>
+    </main>
+    <footer><span>ART OF WAR 3 <span class="muted">/ MASTERS</span></span><span>© Gear Games, 2026</span></footer>
+  </div>
+</body>
+</html>
