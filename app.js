@@ -1,5 +1,5 @@
-import { calculateScore } from './score.js';
-import { messages, englishContent } from './i18n.js?v=5';
+import { calculateScore } from './score.js?v=6';
+import { messages, englishContent } from './i18n.js?v=6';
 
 const defaults = [[20, 60, 7], [30, 50, 5]];
 const bounds = [[1, 30], [0, 100], [0, 10]];
@@ -44,7 +44,7 @@ function render() {
       document.querySelector(`#${keys[field]}-${index}`).value = value;
     });
     ['arena', 'experience', 'career'].forEach((key, part) => {
-      card.querySelector(`.stack .${key}`).style.width = `${scores[index][key] / 83.75 * 100}%`;
+      card.querySelector(`.stack .${key}`).style.width = `${scores[index][key]}%`;
       card.querySelectorAll('.breakdown b')[part].textContent = format(scores[index][key]);
     });
   });
